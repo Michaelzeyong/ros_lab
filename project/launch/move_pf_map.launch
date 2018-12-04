@@ -1,0 +1,10 @@
+<launch>
+
+  <!-- Load map -->
+  <node name="map" pkg="map_server" type="map_server" args="$(find socspioneer)/lgfloor.yaml"/>
+
+  <!-- run the pf -->
+  <node name="Particles_filter" pkg="pf_localisation" type="node.py" output="screen"/>
+  <include file="$(find project)/launch/move.launch" />
+  
+</launch>
