@@ -23,8 +23,8 @@ class PFLocaliser(PFLocaliserBase):
 
         #Set motion model parameters
         self.ODOM_ROTATION_NOISE = 0.005
-        self.ODOM_TRANSLATION_NOISE = 0.014
-        self.ODOM_DRIFT_NOISE = 0.006
+        self.ODOM_TRANSLATION_NOISE = 0.001
+        self.ODOM_DRIFT_NOISE = 0.001
 
         #Sensor model readings
         self.NUMBER_PARTICLE = 1000        
@@ -65,17 +65,25 @@ class PFLocaliser(PFLocaliserBase):
         scan.ranges=ma.masked_invalid(scan.ranges).filled(scan.range_max)
         print len(scan.ranges)
         
-
+        max_weight = 0.0
         for particle in particle_cloud:
             particle_weight = self.sensor_model.get_weight(scan, particle)
             sum_weights+= particle_weight
-            weith_particle.extend([particle_weight])
-            
+            weith_particle.extend([particle_weight]) 
+            if particle_weight>max_weight:
+            	#if weight too low replace the particles
+            	max_weight = particle_weight
+
         for weight in weith_particle:
             weight_over_sum = weight/sum_weights
             normalization_list.extend([weight_over_sum])
             sum_count+= weight_over_sum
             cumulative_weights_list.extend([sum_count])  
+        # i =0
+        # sort_weight = sorted(weith_particle)
+        # for weight in sort_weight:
+        # 	i+=1
+        # 	print("weight %d : %.4f" %(i,weight))
 
         
         #resample  partical cloud
@@ -107,10 +115,12 @@ class PFLocaliser(PFLocaliserBase):
             final_pose.position.y = random.gauss(particle.position.y,(particle.position.y * self.ODOM_TRANSLATION_NOISE))
             final_pose.orientation = rotateQuaternion(particle.orientation,math.radians(random.gauss(0,15))) 
 
-
             final_cloud.poses.extend([final_pose])
-        
-        self.particlecloud = final_cloud
+
+        if max_weight<8:
+        	self.particlecloud = self.replace_particle()
+        else:
+        	self.particlecloud = final_cloud
 
         self.weight_pose = normalization_list
 
@@ -135,4 +145,18 @@ class PFLocaliser(PFLocaliserBase):
         print(pose)
 
         return pose
+
+    def replace_particle(self):
+    	particle_cloud = self.particlecloud.poses
+    	replace_cloud = PoseArray()
+        #add noidse
+        for particle in particle_cloud:
+            final_pose = Pose()
+            final_pose.position.x = random.random()*30
+            final_pose.position.y = random.random()*30
+            final_pose.orientation = rotateQuaternion(Quaternion(w=1.0),math.radians(random.gauss(0,180))) 
+
+            replace_cloud.poses.extend([final_pose])
+        
+        return replace_cloud
 
