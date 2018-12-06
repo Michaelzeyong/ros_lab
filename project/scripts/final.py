@@ -74,6 +74,8 @@ class Final:
                 goal.target_pose.pose = waypoints[int(table)]
                 result_move = self.move(goal)
                 if result_move:
+                    print 'Please face to the camera'
+                    self.robot_spaeker('Please face to the camera')
                     guest = find_guest.video_predict("zhangzeyong",True)
                 if guest:
                     self.robot_spaeker('Please take you dishs, enjoy it!')
@@ -83,6 +85,8 @@ class Final:
                 goal.target_pose.pose = waypoints[int(table)]
                 result_move = self.move(goal)
                 if result_move:
+                    print 'Please face to the camera'
+                    self.robot_spaeker('Please face to the camera')
                     guest = find_guest.video_predict("zhangzeyong",False)
                 self.robot_spaeker('Please take you dishs, enjoy it!')
                 print 'Please take you dishs, enjoy it!'
@@ -115,7 +119,7 @@ class Final:
 
     def init_markers(self):
         # Set up our waypoint markers
-        marker_scale = 2
+        marker_scale = 0.5
         marker_lifetime = 0 # 0 is forever
         marker_ns = 'waypoints'
         marker_id = 0

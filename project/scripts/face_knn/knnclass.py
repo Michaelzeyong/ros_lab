@@ -179,7 +179,7 @@ class face_classification(object):
                 knn_clf = pickle.load(f)
 
         # Load video file and find face locations
-        video = cv2.VideoCapture(1)
+        video = cv2.VideoCapture(0)
         
         X_face_locations = []
         face_encodings = []
@@ -196,8 +196,6 @@ class face_classification(object):
             X_face_locations = face_recognition.face_locations(rgb_small_frame)
 
             # If no faces are found in the image, return an empty result.
-            print "X_face_locations:"
-            print X_face_locations
             if len(X_face_locations) == 0:
                 X_face_locations = [(frame.shape[0]/4,frame.shape[1]*3/4,frame.shape[0]*3/4,frame.shape[1]/4)]
 
